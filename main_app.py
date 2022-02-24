@@ -7,12 +7,15 @@ import os
 import json
 from zipfile import ZipFile
 from collections import Counter
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 
 header = st.container()
 dataset = st.container()
 compare_two_chat_histories = st.container()
 heatmap2d = st.container()
+wordcloud_countainer = st.container()
 
 #Add a sidebar
 st.sidebar.subheader("Visualization Settings")
@@ -168,4 +171,20 @@ if uploaded_file is not None:
         
         figure = px.density_heatmap(selected_df, x="hour", y="day_of_week", nbinsx=12, text_auto=True)
         st.plotly_chart(figure)
+
+    with wordcloud_countainer:
+        st.header("Generate a wordcloud out of your text messages")
+        
+        selected_person = st.selectbox("Select the chat person", df["Chat"].unique())
+        selected_df = df[(df["Chat"]==selected_person) & (df["content"].notnull())]["content"]
+        
+        stopwords = ["si", "sa", "ze", "tak", "som", "je", "nie", "ako", "na", "len", "v", 
+                    "a", "to", "by", "co", "že", "do", "teda", "z", "iba"]
+        wordcloud = WordCloud(stopwords=stopwords).generate("".join(selected_df.tolist()))
+
+        #plt.imshow(wordcloud, interpolation="bilinear")
+        #plt.axis("off")
+        st.image(wordcloud.to_array(), width=700)
+
+
 
