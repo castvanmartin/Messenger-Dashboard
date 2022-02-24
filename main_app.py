@@ -6,6 +6,7 @@ from dateutil import tz
 import os
 import json
 from zipfile import ZipFile
+import base64
 from collections import Counter
 
 
@@ -86,6 +87,16 @@ def read_messages(uploaded_file):
     print("Done :)")    
     return complete_df
 
+def get_table_download_link(df):
+    """Generates a link allowing the data in a given panda dataframe to be downloaded
+    in:  dataframe
+    out: href string
+    """
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+    href = f'<a href="data:file/csv;base64,{b64}" download="messages.csv">Download csv file</a>'
+
+    return href
 
 if "df" not in st.session_state and uploaded_file is not None:
     st.session_state["df"] = read_messages(uploaded_file)
@@ -107,6 +118,7 @@ if uploaded_file is not None:
         st.text("The data was obtained from Facebook by clicking Download your information.")
         st.markdown("If you want to use your own dataset, please read the instruction at following link")
         st.markdown(f"You have uploaded {uploaded_file}")
+        st.markdown(get_table_download_link(df), unsafe_allow_html=True)
         
         st.table(df.head().astype("str"))
 
