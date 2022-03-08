@@ -74,7 +74,8 @@ def read_messages(uploaded_file):
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
 
-    complete_df["timestamp_ms"] = complete_df["timestamp_ms"].apply(lambda x: x.replace(tzinfo=from_zone).astimezone(to_zone))
+    complete_df["timestamp_ms"] = complete_df["timestamp_ms"].dt.tz_localize(from_zone).dt.tz_convert(to_zone)
+    #complete_df["timestamp_ms"] = complete_df["timestamp_ms"].apply(lambda x: x.replace(tzinfo=from_zone).astimezone(to_zone))
     complete_df.rename(columns={"timestamp_ms":"timestamp"})
 
     print("Computing char length")
